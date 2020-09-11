@@ -2,6 +2,7 @@
 
 #ifndef INCLUDE_PARSER_HPP_
 #define INCLUDE_PARSER_HPP_
+
 #include <fstream>
 #include <iomanip>
 #include <iostream>
@@ -20,7 +21,6 @@ struct Lengths_of_fields {
 class Parser {
  public:
   Parser();
-  explicit Parser(const std::vector<Student> &s);
   explicit Parser(const std::string &path);
   ~Parser();
   [[nodiscard]] const std::vector<Student> &getStudents() const;
@@ -28,9 +28,8 @@ class Parser {
   void printRow(const Student &student) const;
   [[nodiscard]] std::string getSeparator() const;
   void parser(const std::string &path);
-  void sortByName();
-  void sortByAverageScore();
-  bool emptyJSONobject() const;
+  void printData();
+  [[nodiscard]] bool emptyJSONobject() const;
   void setJSONstring(const std::string &JSON);
 
  private:

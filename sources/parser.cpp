@@ -1,14 +1,11 @@
 // Copyright 2020 Evgenij Grigorev evgengrmit@icloud.com
 
-#include <algorithm>
-
 #include "parser.hpp"
+
+#include <algorithm>
 
 Parser::Parser() = default;
 
-Parser::Parser(const std::vector<Student> &s) : students(s) {
-  setLengths();
-}
 Parser::Parser(const std::string &path) {
   if (path.empty()) {
     throw std::invalid_argument("The file path cannot be empty!!!");
@@ -120,17 +117,19 @@ void Parser::parser(const std::string &path) {
     std::cout << separator << "\n";
   }
 }
-void Parser::sortByName() {
-  std::sort(students.begin(), students.end(),
-            [](const Student &a, const Student &b) {
-              return a.getName() < b.getName();
-            });
-}
-void Parser::sortByAverageScore() {
-  std::sort(students.begin(), students.end(),
-            [](const Student &a, const Student &b) {
-              return a.getAvg() < b.getAvg();
-            });
+void Parser::printData() {
+  std::cout << std::left << "|" << std::setw(l.length_1_field) << "name"
+            << "|" << std::setw(l.length_2_field) << "group"
+            << "|" << std::setw(l.length_3_field) << "avg"
+            << "|" << std::setw(l.length_4_field) << "debt"
+            << "|" << '\n';
+  std::string separator = getSeparator();
+  std::cout << separator << "\n";
+  for (const auto &student : students) {
+    printRow(student);
+    std::cout << '\n';
+    std::cout << separator << "\n";
+  }
 }
 bool Parser::emptyJSONobject() const { return students.empty(); }
 void Parser::setJSONstring(const std::string &JSON) {
@@ -146,6 +145,7 @@ void Parser::setJSONstring(const std::string &JSON) {
   for (auto const &student : data.at("items")) {
     students.emplace_back(student);
   }
+  setLengths();
 }
 void Parser::setLengths() {
   for (const auto &student : students) {

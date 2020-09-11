@@ -29,5 +29,6 @@ class Student {
   double Avg = 0;
   std::any Debt;
 };
+void from_json(const json &j, Student &s);
 
 #endif  // INCLUDE_STUDENT_HPP_

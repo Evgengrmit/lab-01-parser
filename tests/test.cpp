@@ -8,7 +8,7 @@ TEST(Parser, EmptyParser) {
   Parser a;
   ASSERT_TRUE(a.emptyJSONobject());
   Parser b;
-  b.setJSONstring(R"({
+  b.setJSONString(R"({
   "items": [
     {
       "name": "Ivanov Petr",
@@ -42,7 +42,7 @@ TEST(Parser, EmptyParser) {
 TEST(Parser, Throw) {
   EXPECT_THROW(Parser(""), std::invalid_argument);
   EXPECT_THROW(Parser("Wrong.json"), std::out_of_range);
-  EXPECT_THROW(Parser().setJSONstring(R"({
+  EXPECT_THROW(Parser().setJSONString(R"({
   "items":
     {
       "name": "Ivanov Petr",
@@ -53,7 +53,7 @@ TEST(Parser, Throw) {
 }
 )"),
                std::invalid_argument);
-  EXPECT_THROW(Parser().setJSONstring(R"({
+  EXPECT_THROW(Parser().setJSONString(R"({
   "items": [
     {
       "name": "Ivanov Petr",
@@ -90,7 +90,7 @@ TEST(Parser, LengthOfFields) {
   ASSERT_EQ(Parser().getL().length_3_field, 6);
   ASSERT_EQ(Parser().getL().length_4_field, 15);
   Parser b;
-  b.setJSONstring(R"({
+  b.setJSONString(R"({
   "items": [
     {
       "name": "Ivanov Petr Petrovich",
@@ -127,7 +127,7 @@ TEST(Parser, LengthOfFields) {
 TEST(Parser, NumberOfStudents) {
   ASSERT_EQ(Parser().getStudents().size(), 0);
   Parser b;
-  b.setJSONstring(R"({
+  b.setJSONString(R"({
   "items": [
     {
       "name": "Ivanov Petr Petrovich",
@@ -207,7 +207,7 @@ TEST(Student, ThrowStudent) {
   ASSERT_THROW(Student{json::parse(R"({})")}, std::invalid_argument);
 }
 TEST(Student, From_json_methods) {
-  Student s;
+  Student s, m;
   s.from_json(json::parse(R"({
       "name": "Sidorov Ivan",
       "group": 31,
@@ -218,6 +218,16 @@ TEST(Student, From_json_methods) {
   ASSERT_EQ(std::any_cast<json>(s.getGroup()).get<int>(), 31);
   ASSERT_DOUBLE_EQ(s.getAvg(), 4.00);
   ASSERT_EQ(std::any_cast<json>(s.getDebt()).get<std::string>(), "C++");
+  m.from_json(json::parse(R"({
+      "name": "Ivanov Petr Petrovich",
+      "group": "1",
+      "avg": "4.25",
+      "debt": null
+    })"));
+  ASSERT_EQ(m.getName(), "Ivanov Petr Petrovich");
+  ASSERT_EQ(std::any_cast<json>(m.getGroup()).get<std::string>(), "1");
+  ASSERT_DOUBLE_EQ(m.getAvg(), 4.25);
+  ASSERT_TRUE(std::any_cast<json>(m.getDebt()).is_null());
 }
 TEST(Student, From_json_function) {
   Student s;
@@ -232,7 +242,7 @@ TEST(Student, From_json_function) {
   ASSERT_EQ(std::any_cast<json>(s.getGroup()).get<int>(), 31);
   ASSERT_DOUBLE_EQ(s.getAvg(), 4.00);
   ASSERT_EQ(std::any_cast<json>(s.getDebt()).get<std::string>(), "C++");
-  ASSERT_THROW(from_json(json::parse(R"({})"), s);, std::invalid_argument);
+  ASSERT_THROW(from_json(json::parse(R"({})"), s), std::invalid_argument);
 }
 TEST(Student, StudentSetMethods) {
   Student s;
@@ -255,7 +265,7 @@ TEST(Student, StudentSetMethods) {
 }
 TEST(Student, ThrowFromJsonMethod) {
   Student s;
-  ASSERT_THROW(s.from_json(json::parse(R"({})"));, std::invalid_argument);
+  ASSERT_THROW(s.from_json(json::parse(R"({})")), std::invalid_argument);
   json j = json::parse(R"({
       "name": "Sidorov Ivan",
       "group": "31",
@@ -277,7 +287,6 @@ TEST(Student, ThrowSetMethod) {
   ASSERT_THROW(s.setAvg(j.at("avg")), std::invalid_argument);
 }
 TEST(Student, ThrowConstructor) {
-
   ASSERT_THROW(Student(json::parse(R"({})")), std::invalid_argument);
   ASSERT_THROW(Student(json::parse(R"({
       "name": "Sidorov Ivan",

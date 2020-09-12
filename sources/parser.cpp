@@ -5,29 +5,7 @@
 #include <algorithm>
 
 Parser::Parser() = default;
-
-Parser::Parser(const std::string &path) {
-  if (path.empty()) {
-    throw std::invalid_argument("The file path cannot be empty!!!");
-  }
-  std::ifstream json_file(path);
-  if (!json_file.is_open()) {
-    throw std::out_of_range("The file with the specified name: " + path +
-                            " does not exist!!!");
-  }
-  json data;
-  json_file >> data;
-  if (!data.at("items").is_array()) {
-    throw std::invalid_argument("Items is not array!!!");
-  }
-  if (data.at("items").size() != data.at("_meta").at("count").get<size_t>()) {
-    throw std::invalid_argument("Items length don't equal _meta.count!!!");
-  }
-  for (auto const &student : data.at("items")) {
-    students.emplace_back(student);
-  }
-  setLengths();
-}
+Parser::Parser(const std::string &path) { parser(path); }
 const std::vector<Student> &Parser::getStudents() const { return students; }
 const Lengths_of_fields &Parser::getL() const { return l; }
 
@@ -104,18 +82,6 @@ void Parser::parser(const std::string &path) {
     students.emplace_back(student);
   }
   setLengths();
-  std::cout << std::left << "|" << std::setw(l.length_1_field) << "name"
-            << "|" << std::setw(l.length_2_field) << "group"
-            << "|" << std::setw(l.length_3_field) << "avg"
-            << "|" << std::setw(l.length_4_field) << "debt"
-            << "|" << '\n';
-  std::string separator = getSeparator();
-  std::cout << separator << "\n";
-  for (const auto &student : students) {
-    printRow(student);
-    std::cout << '\n';
-    std::cout << separator << "\n";
-  }
 }
 void Parser::printData() {
   std::cout << std::left << "|" << std::setw(l.length_1_field) << "name"
@@ -132,10 +98,8 @@ void Parser::printData() {
   }
 }
 bool Parser::emptyJSONobject() const { return students.empty(); }
-void Parser::setJSONstring(const std::string &JSON) {
-  std::stringstream json_string(JSON);
-  json data;
-  json_string >> data;
+void Parser::setJSONString(const std::string &JSON) {
+  json data = json::parse(JSON);
   if (!data.at("items").is_array()) {
     throw std::invalid_argument("Items is not array!!!");
   }
@@ -176,4 +140,4 @@ void Parser::setLengths() {
     }
   }
 }
-Parser::~Parser() {}
+Parser::~Parser() = default;

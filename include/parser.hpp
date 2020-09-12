@@ -3,14 +3,12 @@
 #ifndef INCLUDE_PARSER_HPP_
 #define INCLUDE_PARSER_HPP_
 
+#include "student.hpp"
 #include <fstream>
 #include <iomanip>
 #include <iostream>
-#include <sstream>
 #include <string>
 #include <vector>
-
-#include "student.hpp"
 
 struct Lengths_of_fields {
   size_t length_1_field;
@@ -30,7 +28,7 @@ class Parser {
   void parser(const std::string &path);
   void printData();
   [[nodiscard]] bool emptyJSONobject() const;
-  void setJSONstring(const std::string &JSON);
+  void setJSONString(const std::string &JSON);
 
  private:
   std::vector<Student> students;

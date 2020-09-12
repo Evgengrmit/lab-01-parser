@@ -119,10 +119,10 @@ TEST(Parser, LengthOfFields) {
     "count": 3
   }
 })");
-  ASSERT_EQ(b.getL().length_1_field, 22);  // 21+1
-  ASSERT_EQ(b.getL().length_2_field, 17);  // 16+1
+  ASSERT_EQ(b.getL().length_1_field, 22); // 21+1
+  ASSERT_EQ(b.getL().length_2_field, 17); // 16+1
   ASSERT_EQ(b.getL().length_3_field, 6);
-  ASSERT_EQ(b.getL().length_4_field, 19);  // 18+1
+  ASSERT_EQ(b.getL().length_4_field, 19); // 18+1
 }
 TEST(Parser, NumberOfStudents) {
   ASSERT_EQ(Parser().getStudents().size(), 0);
@@ -156,7 +156,7 @@ TEST(Parser, NumberOfStudents) {
     "count": 3
   }
 })");
-  ASSERT_EQ(b.getStudents().size(), 3);  // 21+1
+  ASSERT_EQ(b.getStudents().size(), 3); // 21+1
 }
 TEST(Parser, Separator) {
   std::string s = "|---------------|--------|------|---------------|";
@@ -232,7 +232,7 @@ TEST(Student, From_json_function) {
   ASSERT_EQ(std::any_cast<json>(s.getGroup()).get<int>(), 31);
   ASSERT_DOUBLE_EQ(s.getAvg(), 4.00);
   ASSERT_EQ(std::any_cast<json>(s.getDebt()).get<std::string>(), "C++");
-  ASSERT_THROW(from_json(json::parse(R"({})"), s), std::invalid_argument);
+  ASSERT_THROW(from_json(json::parse(R"({})"), s);, std::invalid_argument);
 }
 TEST(Student, StudentSetMethods) {
   Student s;
@@ -253,10 +253,10 @@ TEST(Student, StudentSetMethods) {
 }
 TEST(Student, ThrowFromJsonMethod) {
   Student s;
-  ASSERT_THROW(s.from_json(json::parse(R"({})")), std::invalid_argument);
+  ASSERT_THROW(s.from_json(json::parse(R"({})"));, std::invalid_argument);
   json j = json::parse(R"({
       "name": "Sidorov Ivan",
-      "group": 31,
+      "group": "31",
       "avg": [],
       "debt": "C++"
     })");
@@ -272,8 +272,10 @@ TEST(Student, ThrowSetMethod) {
     })");
 
   ASSERT_THROW(s.setAvg("avg"), std::invalid_argument);
+  ASSERT_THROW(s.setAvg(j.at("avg")), std::invalid_argument);
 }
 TEST(Student, ThrowConstructor) {
+
   ASSERT_THROW(Student(json::parse(R"({})")), std::invalid_argument);
   ASSERT_THROW(Student(json::parse(R"({
       "name": "Sidorov Ivan",

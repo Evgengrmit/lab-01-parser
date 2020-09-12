@@ -248,6 +248,8 @@ TEST(Student, StudentSetMethods) {
   s.setDebt(j.at("debt"));
   ASSERT_EQ(s.getName(), "Sidorov Ivan");
   ASSERT_EQ(std::any_cast<json>(s.getGroup()).get<int>(), 31);
+  s.setGroup(json::parse("24"));
+  ASSERT_EQ(std::any_cast<json>(s.getGroup()).get<int>(), 24);
   ASSERT_DOUBLE_EQ(s.getAvg(), 4.00);
   ASSERT_EQ(std::any_cast<json>(s.getDebt()).get<std::string>(), "C++");
 }

@@ -23,13 +23,13 @@ class Parser {
   ~Parser();
   [[nodiscard]] const std::vector<Student> &getStudents() const;
   [[nodiscard]] const Lengths_of_fields &getL() const;
-  void printRow(const Student &student) const;
+  void printRow(std::ostream& out, const Student &student) const;
   [[nodiscard]] std::string getSeparator() const;
   void parser(const std::string &path);
   void printData();
   [[nodiscard]] bool emptyJSONobject() const;
   void setJSONString(const std::string &JSON);
-
+  friend std::ostream& operator <<(std::ostream& out, Parser& p);
  private:
   std::vector<Student> students;
   Lengths_of_fields l{15, 8, 6, 15};

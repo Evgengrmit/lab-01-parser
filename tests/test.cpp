@@ -2,8 +2,17 @@
 
 #include <gtest/gtest.h>
 
-#include "parser.hpp"
+#include <sstream>
 
+#include "parser.hpp"
+// Тесты для класса Parser
+std::string getFullPath(const std::string& name) {
+  std::string s(__FILE__);
+  for (size_t i = 0; i < 8; ++i) {
+    s.pop_back();
+  }
+  return s + name;
+}
 TEST(Parser, EmptyParser) {
   Parser a;
   ASSERT_TRUE(a.emptyJSONobject());
@@ -119,10 +128,10 @@ TEST(Parser, LengthOfFields) {
     "count": 3
   }
 })");
-  ASSERT_EQ(b.getL().length_1_field, 22); // 21+1
-  ASSERT_EQ(b.getL().length_2_field, 17); // 16+1
+  ASSERT_EQ(b.getL().length_1_field, 22);  // 21+1
+  ASSERT_EQ(b.getL().length_2_field, 17);  // 16+1
   ASSERT_EQ(b.getL().length_3_field, 6);
-  ASSERT_EQ(b.getL().length_4_field, 19); // 18+1
+  ASSERT_EQ(b.getL().length_4_field, 19);  // 18+1
 }
 TEST(Parser, NumberOfStudents) {
   ASSERT_EQ(Parser().getStudents().size(), 0);
@@ -156,13 +165,66 @@ TEST(Parser, NumberOfStudents) {
     "count": 3
   }
 })");
-  ASSERT_EQ(b.getStudents().size(), 3); // 21+1
+  ASSERT_EQ(b.getStudents().size(), 3);  // 21+1
 }
 TEST(Parser, Separator) {
   std::string s = "|---------------|--------|------|---------------|";
   ASSERT_EQ(Parser().getSeparator(), s);
 }
-
+TEST(Parser, PrintRow) {
+  Parser p;
+  Student s(json::parse(R"({
+      "name": "Ivanov Petr",
+      "group": "1",
+      "avg": "4.25",
+      "debt": null
+    })"));
+  std::stringstream ss;
+  p.printRow(ss, s);
+  ASSERT_EQ(ss.str(), "|Ivanov Petr    |1       |4.25  |null           |");
+  s.setGroup(json::parse(R"({"group": 25})").at("group"));
+  s.setDebt(json::parse(R"({"debt": ["C++"]})").at("debt"));
+  ss.str(std::string());
+  p.printRow(ss, s);
+  ASSERT_EQ(ss.str(), "|Ivanov Petr    |25      |4.25  |1 items        |");
+  s.setDebt(json::parse(R"({"debt": "C++"})").at("debt"));
+  ss.str(std::string());
+  p.printRow(ss, s);
+  ASSERT_EQ(ss.str(), "|Ivanov Petr    |25      |4.25  |C++            |");
+  s.setGroup(json::parse(R"({"group": []})").at("group"));
+  ss.str(std::string());
+  ASSERT_THROW(p.printRow(ss, s), std::invalid_argument);
+  s.setDebt(json::parse(R"({"debt": 25})").at("debt"));
+  ss.str(std::string());
+  ASSERT_THROW(p.printRow(ss, s), std::invalid_argument);
+}
+TEST(Parser, ConstructorThrow) {
+  ASSERT_THROW(Parser(getFullPath("WrongCount.json")), std::out_of_range);
+  ASSERT_THROW(Parser(getFullPath("NotArray.json")), std::invalid_argument);
+}
+TEST(Parser, Constructor) {
+  Parser b(getFullPath("students.json"));
+  ASSERT_EQ(b.getL().length_1_field, 15);
+  ASSERT_EQ(b.getL().length_2_field, 10);  // 9+1
+  ASSERT_EQ(b.getL().length_3_field, 6);
+  ASSERT_EQ(b.getL().length_4_field, 15);
+}
+TEST(Parser, PrintData) {
+  std::stringstream ss;
+  Parser p(getFullPath("students.json"));
+  ss << p;
+  std::string correct(R"(|name           |group     |avg   |debt           |
+|---------------|----------|------|---------------|
+|Ivanov Petr    |1         |4.25  |null           |
+|---------------|----------|------|---------------|
+|Sidorov Ivan   |123456789 |4     |C++            |
+|---------------|----------|------|---------------|
+|Pertov Nikita  |IU8-31    |3.33  |3 items        |
+|---------------|----------|------|---------------|
+)");
+  ASSERT_EQ(ss.str(), correct);
+}
+//Тесты для класса Student
 TEST(Student, CorrectTypesOfFieldsNull) {
   Student s{json::parse(R"({
       "name": "Ivanov Petr",

@@ -9,37 +9,37 @@ Parser::Parser(const std::string &path) { parser(path); }
 const std::vector<Student> &Parser::getStudents() const { return students; }
 const Lengths_of_fields &Parser::getL() const { return l; }
 
-void Parser::printRow(const Student &student) const {
-  std::cout << std::left << "|" << std::setw(l.length_1_field)
-            << student.getName() << "|";
+void Parser::printRow(std::ostream &out, const Student &student) const {
+  out << std::left << "|" << std::setw(l.length_1_field) << student.getName()
+      << "|";
   if (std::any_cast<json>(student.getGroup()).is_number()) {
-    std::cout << std::setw(l.length_2_field)
-              << std::any_cast<json>(student.getGroup()).get<int>();
+    out << std::setw(l.length_2_field)
+        << std::any_cast<json>(student.getGroup()).get<int>();
   } else if (std::any_cast<json>(student.getGroup()).is_string()) {
-    std::cout << std::setw(l.length_2_field)
-              << std::any_cast<json>(student.getGroup()).get<std::string>();
+    out << std::setw(l.length_2_field)
+        << std::any_cast<json>(student.getGroup()).get<std::string>();
   } else {
     throw std::invalid_argument(
         "The type of the Group variable is undefined!!!");
   }
-  std::cout << "|" << std::setprecision(3) << std::setw(l.length_3_field)
-            << student.getAvg() << "|";
+  out << "|" << std::setprecision(3) << std::setw(l.length_3_field)
+      << student.getAvg() << "|";
   if (std::any_cast<json>(student.getDebt()).is_null()) {
-    std::cout << std::setw(l.length_4_field) << "null";
+    out << std::setw(l.length_4_field) << "null";
   } else if (std::any_cast<json>(student.getDebt()).is_array()) {
     std::string it = std::to_string(std::any_cast<json>(student.getDebt())
                                         .get<std::vector<std::string>>()
                                         .size()) +
                      " items";
-    std::cout << std::setw(l.length_4_field) << it;
+    out << std::setw(l.length_4_field) << it;
   } else if (std::any_cast<json>(student.getDebt()).is_string()) {
-    std::cout << std::setw(l.length_4_field)
-              << std::any_cast<json>(student.getDebt()).get<std::string>();
+    out << std::setw(l.length_4_field)
+        << std::any_cast<json>(student.getDebt()).get<std::string>();
   } else {
     throw std::invalid_argument(
         "The type of the Debt variable is undefined!!!");
   }
-  std::cout << "|";
+  out << "|";
 }
 std::string Parser::getSeparator() const {
   std::string sep = "|";
@@ -76,7 +76,7 @@ void Parser::parser(const std::string &path) {
     throw std::invalid_argument("Items is not array!!!");
   }
   if (data.at("items").size() != data.at("_meta").at("count").get<size_t>()) {
-    throw std::invalid_argument("Items length don't equal _meta.count!!!");
+    throw std::out_of_range("Items length don't equal _meta.count!!!");
   }
   for (auto const &student : data.at("items")) {
     students.emplace_back(student);
@@ -84,18 +84,7 @@ void Parser::parser(const std::string &path) {
   setLengths();
 }
 void Parser::printData() {
-  std::cout << std::left << "|" << std::setw(l.length_1_field) << "name"
-            << "|" << std::setw(l.length_2_field) << "group"
-            << "|" << std::setw(l.length_3_field) << "avg"
-            << "|" << std::setw(l.length_4_field) << "debt"
-            << "|" << '\n';
-  std::string separator = getSeparator();
-  std::cout << separator << "\n";
-  for (const auto &student : students) {
-    printRow(student);
-    std::cout << '\n';
-    std::cout << separator << "\n";
-  }
+  std::cout << *this;
 }
 bool Parser::emptyJSONobject() const { return students.empty(); }
 void Parser::setJSONString(const std::string &JSON) {
@@ -139,5 +128,20 @@ void Parser::setLengths() {
           std::any_cast<json>(student.getDebt()).get<std::string>().size() + 1;
     }
   }
+}
+std::ostream &operator<<(std::ostream &out, Parser &p) {
+  out << std::left << "|" << std::setw(p.l.length_1_field) << "name"
+            << "|" << std::setw(p.l.length_2_field) << "group"
+            << "|" << std::setw(p.l.length_3_field) << "avg"
+            << "|" << std::setw(p.l.length_4_field) << "debt"
+            << "|" << '\n';
+  std::string separator = p.getSeparator();
+  out << separator << "\n";
+  for (const auto &student : p.students) {
+    p.printRow(out, student);
+    out << '\n';
+    out << separator << "\n";
+  }
+  return out;
 }
 Parser::~Parser() = default;

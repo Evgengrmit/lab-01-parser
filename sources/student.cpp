@@ -1,7 +1,9 @@
 // Copyright 2020 Evgenij Grigorev evgengrmit@icloud.com
-#include <iostream>
 
 #include "student.hpp"
+
+#include <iostream>
+
 using nlohmann::json;
 
 Student::Student(const json &obj) {
@@ -26,10 +28,10 @@ const std::any &Student::getGroup() const { return Group; }
 void Student::setGroup(const json &group) { Group = std::any{group}; }
 double Student::getAvg() const { return Avg; }
 void Student::setAvg(const json &avg) {
-  if (avg.at("avg").is_string()) {
-    Avg = std::stod(avg.at("avg").get<std::string>());
-  } else if (avg.at("avg").is_number()) {
-    Avg = avg.at("avg").get<double>();
+  if (avg.is_string()) {
+    Avg = std::stod(avg.get<std::string>());
+  } else if (avg.is_number()) {
+    Avg = avg.get<double>();
   } else {
     throw std::invalid_argument("The type of the Avg variable is undefined!!!");
   }
@@ -50,4 +52,14 @@ void Student::from_json(const json &obj) {
     throw std::invalid_argument("The type of the Avg variable is undefined!!!");
   }
   Debt = std::any{obj.at("debt")};
+}
+
+void from_json(const json &j, Student &s) {
+  if (j.empty()) {
+    throw std::invalid_argument("Object for Student cannot be empty");
+  }
+  s.setName(j.at("name"));
+  s.setGroup(j.at("group"));
+  s.setAvg(j.at("avg"));
+  s.setDebt(j.at("debt"));
 }
